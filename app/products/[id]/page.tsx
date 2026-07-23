@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
       <Button
         variant="ghost"
         size="sm"
+        nativeButton={false}
         className="-ml-2 self-start"
         render={<Link href="/products" />}
       >

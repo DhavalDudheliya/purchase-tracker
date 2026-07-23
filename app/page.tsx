@@ -60,6 +60,7 @@ export default function Page() {
       <div className="flex flex-col gap-3">
         <Button
           size="lg"
+          nativeButton={false}
           className="h-14 text-base"
           render={<Link href="/purchases" />}
         >
@@ -69,6 +70,7 @@ export default function Page() {
         <Button
           size="lg"
           variant="outline"
+          nativeButton={false}
           className="h-14 text-base"
           render={<Link href="/products" />}
         >
