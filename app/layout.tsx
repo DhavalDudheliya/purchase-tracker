@@ -1,9 +1,10 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { QueryProvider } from "@/components/providers/query-provider"
+import { ServiceWorkerRegister } from "@/components/providers/sw-register"
 import { Header } from "@/components/layout/header"
 import { BottomNav } from "@/components/layout/bottom-nav"
 import { Toaster } from "@/components/ui/sonner"
@@ -20,6 +21,19 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Purchase Tracker",
   description: "Log daily wholesale purchases",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Purchases",
+  },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/apple-icon.png",
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#059669",
 }
 
 export default function RootLayout({
@@ -48,6 +62,7 @@ export default function RootLayout({
                 <BottomNav />
               </div>
               <Toaster />
+              <ServiceWorkerRegister />
             </I18nProvider>
           </QueryProvider>
         </ThemeProvider>
