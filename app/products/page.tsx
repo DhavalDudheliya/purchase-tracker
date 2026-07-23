@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { ProductCard } from "@/components/products/product-card"
 import { ProductForm } from "@/components/products/product-form"
 import { useDeleteProduct, useProducts } from "@/hooks/use-products"
@@ -20,6 +21,7 @@ export default function ProductsPage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<Product | null>(null)
 
   function openCreate() {
     setEditing(null)
@@ -31,8 +33,9 @@ export default function ProductsPage() {
     setFormOpen(true)
   }
 
-  async function handleDelete(product: Product) {
-    if (!window.confirm(t.products.deleteConfirm)) return
+  async function confirmDelete() {
+    const product = pendingDelete
+    if (!product) return
     try {
       await deleteProduct.mutateAsync(product.id)
       if (product.image_url) void deleteProductImage(product.image_url)
@@ -67,7 +70,7 @@ export default function ProductsPage() {
               key={product.id}
               product={product}
               onEdit={openEdit}
-              onDelete={handleDelete}
+              onDelete={setPendingDelete}
             />
           ))}
         </div>
@@ -81,6 +84,18 @@ export default function ProductsPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         product={editing}
+      />
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(o) => {
+          if (!o) setPendingDelete(null)
+        }}
+        title={t.products.deleteConfirm}
+        description={pendingDelete?.name}
+        confirmLabel={t.common.delete}
+        destructive
+        onConfirm={confirmDelete}
       />
     </div>
   )

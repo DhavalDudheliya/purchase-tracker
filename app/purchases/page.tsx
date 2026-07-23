@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { PurchaseForm } from "@/components/purchases/purchase-form"
 import { PurchaseRow } from "@/components/purchases/purchase-row"
 import { usePurchases, useDeletePurchase } from "@/hooks/use-purchases"
@@ -24,6 +25,9 @@ export default function PurchasesPage() {
   const [filter, setFilter] = useState<Filter>("all")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<PurchaseWithProduct | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<PurchaseWithProduct | null>(
+    null,
+  )
 
   const filtered = useMemo(() => {
     const list = purchases ?? []
@@ -52,8 +56,9 @@ export default function PurchasesPage() {
     setFormOpen(true)
   }
 
-  async function handleDelete(purchase: PurchaseWithProduct) {
-    if (!window.confirm(t.purchases.deleteConfirm)) return
+  async function confirmDelete() {
+    const purchase = pendingDelete
+    if (!purchase) return
     try {
       await deletePurchase.mutateAsync(purchase.id)
       toast.success(t.purchases.deleted)
@@ -122,7 +127,7 @@ export default function PurchasesPage() {
                     key={purchase.id}
                     purchase={purchase}
                     onEdit={openEdit}
-                    onDelete={handleDelete}
+                    onDelete={setPendingDelete}
                   />
                 ))}
               </div>
@@ -139,6 +144,18 @@ export default function PurchasesPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         purchase={editing}
+      />
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(o) => {
+          if (!o) setPendingDelete(null)
+        }}
+        title={t.purchases.deleteConfirm}
+        description={pendingDelete?.product?.name}
+        confirmLabel={t.common.delete}
+        destructive
+        onConfirm={confirmDelete}
       />
     </div>
   )
