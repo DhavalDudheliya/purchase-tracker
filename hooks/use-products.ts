@@ -6,6 +6,8 @@ import { queryKeys } from "@/lib/query-keys"
 import {
   createProduct,
   deleteProduct,
+  getProduct,
+  getProductStats,
   listProducts,
   updateProduct,
 } from "@/lib/supabase/products"
@@ -15,6 +17,22 @@ export function useProducts() {
   return useQuery({
     queryKey: queryKeys.products,
     queryFn: listProducts,
+  })
+}
+
+export function useProduct(id: string) {
+  return useQuery({
+    queryKey: [...queryKeys.products, id],
+    queryFn: () => getProduct(id),
+    enabled: Boolean(id),
+  })
+}
+
+export function useProductStats(id: string) {
+  return useQuery({
+    queryKey: [...queryKeys.productStats, id],
+    queryFn: () => getProductStats(id),
+    enabled: Boolean(id),
   })
 }
 

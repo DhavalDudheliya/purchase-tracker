@@ -1,6 +1,7 @@
 import type {
   Product,
   ProductInsert,
+  ProductStats,
   ProductUpdate,
 } from "@/types/database"
 
@@ -13,6 +14,28 @@ export async function listProducts(): Promise<Product[]> {
     .from("products")
     .select("*")
     .order("name", { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function getProduct(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function getProductStats(
+  id: string,
+): Promise<ProductStats | null> {
+  const { data, error } = await supabase
+    .from("product_stats")
+    .select("*")
+    .eq("product_id", id)
+    .maybeSingle()
   if (error) throw error
   return data
 }

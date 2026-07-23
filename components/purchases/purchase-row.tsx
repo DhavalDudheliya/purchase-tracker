@@ -10,8 +10,8 @@ import { useI18n } from "@/i18n/context"
 
 type Props = {
   purchase: PurchaseWithProduct
-  onEdit: (purchase: PurchaseWithProduct) => void
-  onDelete: (purchase: PurchaseWithProduct) => void
+  onEdit?: (purchase: PurchaseWithProduct) => void
+  onDelete?: (purchase: PurchaseWithProduct) => void
 }
 
 export function PurchaseRow({ purchase, onEdit, onDelete }: Props) {
@@ -57,24 +57,30 @@ export function PurchaseRow({ purchase, onEdit, onDelete }: Props) {
 
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span className="font-semibold">{formatINR(purchase.total)}</span>
-        <div className="flex gap-1">
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            onClick={() => onEdit(purchase)}
-            aria-label={t.common.edit}
-          >
-            <Pencil />
-          </Button>
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            onClick={() => onDelete(purchase)}
-            aria-label={t.common.delete}
-          >
-            <Trash2 />
-          </Button>
-        </div>
+        {(onEdit || onDelete) && (
+          <div className="flex gap-1">
+            {onEdit && (
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                onClick={() => onEdit(purchase)}
+                aria-label={t.common.edit}
+              >
+                <Pencil />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                onClick={() => onDelete(purchase)}
+                aria-label={t.common.delete}
+              >
+                <Trash2 />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
