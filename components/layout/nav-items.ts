@@ -1,6 +1,12 @@
 "use client"
 
-import { Home, Package, ReceiptText, type LucideIcon } from "lucide-react"
+import {
+  BarChart3,
+  Home,
+  Package,
+  ReceiptText,
+  type LucideIcon,
+} from "lucide-react"
 
 import { useI18n } from "@/i18n/context"
 
@@ -13,6 +19,7 @@ export function useNavItems(): NavItem[] {
     { href: "/", label: t.nav.home, icon: Home },
     { href: "/products", label: t.nav.products, icon: Package },
     { href: "/purchases", label: t.nav.purchases, icon: ReceiptText },
+    { href: "/insights", label: t.nav.insights, icon: BarChart3 },
   ]
 }
 

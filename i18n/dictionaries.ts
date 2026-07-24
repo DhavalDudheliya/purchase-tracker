@@ -24,6 +24,7 @@ const en = {
     home: "Home",
     products: "Products",
     purchases: "Purchases",
+    insights: "Insights",
   },
   common: {
     save: "Save",
@@ -103,6 +104,23 @@ const en = {
     all: "All",
     dayTotal: "Day total",
   },
+  insights: {
+    title: "Insights",
+    allTimeSpent: "Total spent (all time)",
+    totalPurchases: "Purchases logged",
+    productsTracked: "Products tracked",
+    sortBy: "Sort by",
+    bySpent: "Spent",
+    byQuantity: "Quantity",
+    byName: "Name",
+    qty: "Qty bought",
+    spent: "Total spent",
+    avgRate: "Avg rate",
+    lastRate: "Last rate",
+    purchaseCount: "Purchases",
+    never: "Not purchased yet",
+    empty: "Add products and log purchases to see insights.",
+  },
 }
 
 export type Dictionary = typeof en
@@ -113,6 +131,7 @@ const gu: Dictionary = {
     home: "Home",
     products: "Products",
     purchases: "Purchases",
+    insights: "Insights",
   },
   common: {
     save: "Save karo",
@@ -191,6 +210,23 @@ const gu: Dictionary = {
     quantityError: "Quantity nakho.",
     all: "All",
     dayTotal: "Din no total",
+  },
+  insights: {
+    title: "Insights",
+    allTimeSpent: "Total kharch (aakho time)",
+    totalPurchases: "Kul purchases",
+    productsTracked: "Products",
+    sortBy: "Sort karo",
+    bySpent: "Kharch",
+    byQuantity: "Quantity",
+    byName: "Name",
+    qty: "Kharidyu (Qty)",
+    spent: "Total kharch",
+    avgRate: "Avg rate",
+    lastRate: "Chhello rate",
+    purchaseCount: "Purchases",
+    never: "Haju kharidyu nathi",
+    empty: "Products add karo ane purchases log karo, pachi insights dekhase.",
   },
 }
 

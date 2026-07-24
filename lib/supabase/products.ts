@@ -40,6 +40,13 @@ export async function getProductStats(
   return data
 }
 
+/** Aggregated stats for every product (one row each, zeros if never purchased). */
+export async function listProductStats(): Promise<ProductStats[]> {
+  const { data, error } = await supabase.from("product_stats").select("*")
+  if (error) throw error
+  return data
+}
+
 export async function createProduct(input: ProductInsert): Promise<Product> {
   const { data, error } = await supabase
     .from("products")
