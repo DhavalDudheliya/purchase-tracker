@@ -5,6 +5,7 @@ import { Plus } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { PurchaseForm } from "@/components/purchases/purchase-form"
@@ -23,6 +24,9 @@ export default function PurchasesPage() {
   const deletePurchase = useDeletePurchase()
 
   const [filter, setFilter] = useState<Filter>("all")
+  const [query, setQuery] = useState("")
+  const [from, setFrom] = useState("")
+  const [to, setTo] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<PurchaseWithProduct | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PurchaseWithProduct | null>(
@@ -30,10 +34,25 @@ export default function PurchasesPage() {
   )
 
   const filtered = useMemo(() => {
-    const list = purchases ?? []
-    if (filter === "all") return list
-    return list.filter((p) => p.product?.type === filter)
-  }, [purchases, filter])
+    const q = query.trim().toLowerCase()
+    return (purchases ?? []).filter((p) => {
+      if (filter !== "all" && p.product?.type !== filter) return false
+      if (q && !p.product?.name.toLowerCase().includes(q)) return false
+      if (from && p.purchase_date < from) return false
+      if (to && p.purchase_date > to) return false
+      return true
+    })
+  }, [purchases, filter, query, from, to])
+
+  const hasFilters =
+    filter !== "all" || query.trim() !== "" || from !== "" || to !== ""
+
+  function clearFilters() {
+    setFilter("all")
+    setQuery("")
+    setFrom("")
+    setTo("")
+  }
 
   // Group by purchase date (already sorted newest-first by the query).
   const groups = useMemo(() => {
@@ -86,22 +105,69 @@ export default function PurchasesPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {filters.map(({ key, label }) => (
+      <div className="flex flex-col gap-3">
+        <Input
+          type="search"
+          placeholder={t.purchases.searchHistory}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="h-10"
+        />
+
+        <div className="grid grid-cols-3 gap-2">
+          {filters.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setFilter(key)}
+              className={cn(
+                "rounded-lg border p-2 text-sm font-medium transition-colors",
+                filter === key
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">
+              {t.purchases.from}
+            </span>
+            <Input
+              type="date"
+              value={from}
+              max={to || undefined}
+              onChange={(e) => setFrom(e.target.value)}
+              className="h-10"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">
+              {t.purchases.to}
+            </span>
+            <Input
+              type="date"
+              value={to}
+              min={from || undefined}
+              onChange={(e) => setTo(e.target.value)}
+              className="h-10"
+            />
+          </label>
+        </div>
+
+        {hasFilters && (
           <button
-            key={key}
             type="button"
-            onClick={() => setFilter(key)}
-            className={cn(
-              "rounded-lg border p-2 text-sm font-medium transition-colors",
-              filter === key
-                ? "border-primary bg-primary/5 text-primary"
-                : "border-border text-muted-foreground hover:bg-muted",
-            )}
+            onClick={clearFilters}
+            className="self-start text-sm text-primary hover:underline"
           >
-            {label}
+            {t.purchases.clearFilters}
           </button>
-        ))}
+        )}
       </div>
 
       {isLoading ? (
@@ -138,7 +204,7 @@ export default function PurchasesPage() {
         </div>
       ) : (
         <p className="py-12 text-center text-sm text-muted-foreground">
-          {t.purchases.empty}
+          {hasFilters ? t.purchases.noResults : t.purchases.empty}
         </p>
       )}
 

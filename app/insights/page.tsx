@@ -6,56 +6,92 @@ import { ImageIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useAllProductStats, useProducts } from "@/hooks/use-products"
+import { usePurchases } from "@/hooks/use-purchases"
 import { cn, formatINR } from "@/lib/utils"
 import { useI18n } from "@/i18n/context"
-import type { Product, ProductStats } from "@/types/database"
+import type { ProductType } from "@/types/database"
 
+type Range = "thisMonth" | "lastMonth" | "all"
 type Sort = "spent" | "quantity" | "name"
 
-type Row = ProductStats & { product: Product }
+type Row = {
+  productId: string
+  name: string
+  type: ProductType
+  imageUrl: string | null
+  quantity: number
+  spent: number
+  count: number
+}
+
+/** Year-month prefix ("YYYY-MM") for the current month offset by `monthsAgo`. */
+function monthPrefix(monthsAgo: number): string {
+  const now = new Date()
+  const d = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
 
 export default function InsightsPage() {
   const { t } = useI18n()
-  const { data: products, isLoading: productsLoading } = useProducts()
-  const { data: stats, isLoading: statsLoading } = useAllProductStats()
-  const isLoading = productsLoading || statsLoading
+  const { data: purchases, isLoading } = usePurchases()
 
+  const [range, setRange] = useState<Range>("thisMonth")
   const [sort, setSort] = useState<Sort>("spent")
 
   const rows = useMemo<Row[]>(() => {
-    const statsById = new Map((stats ?? []).map((s) => [s.product_id, s]))
-    const merged: Row[] = (products ?? []).map((product) => {
-      const s = statsById.get(product.id)
-      return {
-        product,
-        product_id: product.id,
-        purchase_count: s?.purchase_count ?? 0,
-        total_quantity: s?.total_quantity ?? 0,
-        total_spent: s?.total_spent ?? 0,
-        min_rate: s?.min_rate ?? null,
-        max_rate: s?.max_rate ?? null,
-        avg_rate: s?.avg_rate ?? null,
-        last_rate: s?.last_rate ?? null,
+    const prefix =
+      range === "thisMonth"
+        ? monthPrefix(0)
+        : range === "lastMonth"
+          ? monthPrefix(1)
+          : null
+
+    const byProduct = new Map<string, Row>()
+    for (const p of purchases ?? []) {
+      if (prefix && !p.purchase_date.startsWith(prefix)) continue
+      if (!p.product) continue
+      const existing = byProduct.get(p.product_id)
+      if (existing) {
+        existing.quantity += p.quantity
+        existing.spent += p.total
+        existing.count += 1
+      } else {
+        byProduct.set(p.product_id, {
+          productId: p.product_id,
+          name: p.product.name,
+          type: p.product.type,
+          imageUrl: p.product.image_url,
+          quantity: p.quantity,
+          spent: p.total,
+          count: 1,
+        })
       }
+    }
+
+    const list = Array.from(byProduct.values())
+    list.sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name)
+      if (sort === "quantity") return b.quantity - a.quantity
+      return b.spent - a.spent
     })
-    merged.sort((a, b) => {
-      if (sort === "name") return a.product.name.localeCompare(b.product.name)
-      if (sort === "quantity") return b.total_quantity - a.total_quantity
-      return b.total_spent - a.total_spent
-    })
-    return merged
-  }, [products, stats, sort])
+    return list
+  }, [purchases, range, sort])
 
   const totals = useMemo(() => {
     let spent = 0
-    let purchases = 0
+    let count = 0
     for (const r of rows) {
-      spent += r.total_spent
-      purchases += r.purchase_count
+      spent += r.spent
+      count += r.count
     }
-    return { spent, purchases, products: rows.length }
+    return { spent, count, products: rows.length }
   }, [rows])
+
+  const ranges: { key: Range; label: string }[] = [
+    { key: "thisMonth", label: t.insights.thisMonth },
+    { key: "lastMonth", label: t.insights.lastMonth },
+    { key: "all", label: t.insights.allTime },
+  ]
 
   const sorts: { key: Sort; label: string }[] = [
     { key: "spent", label: t.insights.bySpent },
@@ -63,21 +99,38 @@ export default function InsightsPage() {
     { key: "name", label: t.insights.byName },
   ]
 
-  const money = (v: number | null) => (v == null ? "—" : formatINR(v))
-
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold md:text-2xl">{t.insights.title}</h1>
 
-      {/* All-time totals */}
+      {/* Period */}
+      <div className="grid grid-cols-3 gap-2">
+        {ranges.map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setRange(key)}
+            className={cn(
+              "rounded-lg border p-2 text-sm font-medium transition-colors",
+              range === key
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border text-muted-foreground hover:bg-muted",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Totals for the selected period */}
       <div className="grid grid-cols-3 gap-2">
         <SummaryTile
-          label={t.insights.allTimeSpent}
+          label={t.insights.totalSpent}
           value={formatINR(totals.spent)}
         />
         <SummaryTile
           label={t.insights.totalPurchases}
-          value={String(totals.purchases)}
+          value={String(totals.count)}
         />
         <SummaryTile
           label={t.insights.productsTracked}
@@ -112,22 +165,22 @@ export default function InsightsPage() {
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-40 w-full rounded-xl" />
+            <Skeleton key={i} className="h-32 w-full rounded-xl" />
           ))}
         </div>
       ) : rows.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {rows.map((row) => (
             <Link
-              key={row.product_id}
-              href={`/products/${row.product_id}`}
+              key={row.productId}
+              href={`/products/${row.productId}`}
               className="flex flex-col gap-3 rounded-xl bg-card p-4 text-card-foreground ring-1 ring-foreground/10 transition-colors hover:bg-muted/40"
             >
               <div className="flex items-center gap-3">
-                {row.product.image_url ? (
+                {row.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={row.product.image_url}
+                    src={row.imageUrl}
                     alt=""
                     className="size-11 shrink-0 rounded-md border object-cover"
                   />
@@ -138,35 +191,28 @@ export default function InsightsPage() {
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">
-                      {row.product.name}
-                    </span>
+                    <span className="truncate font-medium">{row.name}</span>
                     <Badge
                       variant="secondary"
                       className={cn(
-                        row.product.type === "supply" &&
+                        row.type === "supply" &&
                           "bg-amber-500/15 text-amber-700 dark:text-amber-400",
                       )}
                     >
-                      {row.product.type === "resale"
+                      {row.type === "resale"
                         ? t.products.resale
                         : t.products.supply}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {row.purchase_count > 0
-                      ? `${row.purchase_count} ${t.insights.purchaseCount}`
-                      : t.insights.never}
+                    {row.count} {t.insights.purchaseCount}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <Metric label={t.insights.spent} value={money(row.total_spent)} />
-                <Metric
-                  label={t.insights.qty}
-                  value={String(row.total_quantity)}
-                />
+                <Metric label={t.insights.spent} value={formatINR(row.spent)} />
+                <Metric label={t.insights.qty} value={String(row.quantity)} />
               </div>
             </Link>
           ))}

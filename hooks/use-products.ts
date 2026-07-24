@@ -8,7 +8,6 @@ import {
   deleteProduct,
   getProduct,
   getProductStats,
-  listProductStats,
   listProducts,
   updateProduct,
 } from "@/lib/supabase/products"
@@ -34,13 +33,6 @@ export function useProductStats(id: string) {
     queryKey: [...queryKeys.productStats, id],
     queryFn: () => getProductStats(id),
     enabled: Boolean(id),
-  })
-}
-
-export function useAllProductStats() {
-  return useQuery({
-    queryKey: queryKeys.productStats,
-    queryFn: listProductStats,
   })
 }
 
