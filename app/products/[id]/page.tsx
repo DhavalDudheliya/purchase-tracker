@@ -92,11 +92,7 @@ export default function ProductDetailPage() {
           {/* Insights */}
           <div className="flex flex-col gap-2">
             <h2 className="font-medium">{t.products.insights}</h2>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <StatTile label={t.products.lastRate} value={money(stats?.last_rate)} />
-              <StatTile label={t.products.avgRate} value={money(stats?.avg_rate)} />
-              <StatTile label={t.products.lowest} value={money(stats?.min_rate)} />
-              <StatTile label={t.products.highest} value={money(stats?.max_rate)} />
+            <div className="grid grid-cols-3 gap-2">
               <StatTile
                 label={t.products.totalQty}
                 value={String(stats?.total_quantity ?? 0)}
@@ -104,6 +100,10 @@ export default function ProductDetailPage() {
               <StatTile
                 label={t.products.totalSpent}
                 value={money(stats?.total_spent ?? 0)}
+              />
+              <StatTile
+                label={t.products.purchaseCount}
+                value={String(stats?.purchase_count ?? 0)}
               />
             </div>
           </div>

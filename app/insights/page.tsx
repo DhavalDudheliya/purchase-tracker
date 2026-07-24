@@ -167,11 +167,6 @@ export default function InsightsPage() {
                   label={t.insights.qty}
                   value={String(row.total_quantity)}
                 />
-                <Metric label={t.insights.avgRate} value={money(row.avg_rate)} />
-                <Metric
-                  label={t.insights.lastRate}
-                  value={money(row.last_rate)}
-                />
               </div>
             </Link>
           ))}
