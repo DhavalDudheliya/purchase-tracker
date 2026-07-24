@@ -75,9 +75,11 @@ export default function PurchasesPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">{t.purchases.title}</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">
+          {t.purchases.title}
+        </h1>
         <Button size="sm" onClick={openCreate}>
           <Plus />
           {t.purchases.add}

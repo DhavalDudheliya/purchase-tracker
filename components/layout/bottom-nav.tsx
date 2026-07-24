@@ -2,27 +2,20 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Package, ReceiptText, type LucideIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useI18n } from "@/i18n/context"
+import { isNavActive, useNavItems } from "./nav-items"
 
+/** Mobile-only bottom navigation. Hidden at `md` and up, where the sidebar takes over. */
 export function BottomNav() {
   const pathname = usePathname()
-  const { t } = useI18n()
-
-  const items: { href: string; label: string; icon: LucideIcon }[] = [
-    { href: "/", label: t.nav.home, icon: Home },
-    { href: "/products", label: t.nav.products, icon: Package },
-    { href: "/purchases", label: t.nav.purchases, icon: ReceiptText },
-  ]
+  const items = useNavItems()
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-background">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-background md:hidden">
       <div className="mx-auto flex max-w-md">
         {items.map(({ href, label, icon: Icon }) => {
-          const active =
-            href === "/" ? pathname === "/" : pathname.startsWith(href)
+          const active = isNavActive(pathname, href)
           return (
             <Link
               key={href}

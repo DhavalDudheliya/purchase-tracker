@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { ServiceWorkerRegister } from "@/components/providers/sw-register"
 import { Header } from "@/components/layout/header"
+import { Sidebar } from "@/components/layout/sidebar"
 import { BottomNav } from "@/components/layout/bottom-nav"
 import { Toaster } from "@/components/ui/sonner"
 import { I18nProvider } from "@/i18n/context"
@@ -56,9 +57,14 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <I18nProvider>
-              <div className="mx-auto flex min-h-svh max-w-md flex-col">
-                <Header />
-                <main className="flex-1 px-4 pt-4 pb-24">{children}</main>
+              <div className="flex min-h-svh flex-col md:flex-row">
+                <Sidebar />
+                <div className="flex min-h-svh flex-1 flex-col">
+                  <Header />
+                  <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-10">
+                    {children}
+                  </main>
+                </div>
                 <BottomNav />
               </div>
               <Toaster />

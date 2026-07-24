@@ -50,7 +50,7 @@ export default function ProductsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">{t.products.title}</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">{t.products.title}</h1>
         <Button size="sm" onClick={openCreate}>
           <Plus />
           {t.products.add}
@@ -58,13 +58,13 @@ export default function ProductsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-20 w-full rounded-xl" />
           ))}
         </div>
       ) : products && products.length > 0 ? (
-        <div className="flex flex-col gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
             <ProductCard
               key={product.id}
