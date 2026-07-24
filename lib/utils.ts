@@ -28,6 +28,17 @@ export function formatDate(date: string | Date): string {
   }).format(d)
 }
 
+/** Format a date with weekday, e.g. "Friday, 24 Jul 2026". */
+export function formatLongDate(date: string | Date): string {
+  const d = typeof date === "string" ? parseDateOnly(date) : date
+  return new Intl.DateTimeFormat("en-IN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d)
+}
+
 function parseDateOnly(value: string): Date {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (match) {

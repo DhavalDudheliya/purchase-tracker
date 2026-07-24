@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PurchaseRow } from "@/components/purchases/purchase-row"
 import { usePurchases } from "@/hooks/use-purchases"
-import { formatINR } from "@/lib/utils"
+import { formatINR, formatLongDate, todayISO } from "@/lib/utils"
 import { useI18n } from "@/i18n/context"
 
 export default function Page() {
@@ -31,12 +31,15 @@ export default function Page() {
   }, [purchases])
 
   const recent = (purchases ?? []).slice(0, 5)
+  const today = useMemo(() => formatLongDate(todayISO()), [])
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold">{t.home.greeting}</h1>
-        <p className="text-sm text-muted-foreground">{t.home.tagline}</p>
+        <p className="text-sm font-medium text-muted-foreground">
+          {t.home.today}
+        </p>
+        <h1 className="text-xl font-semibold md:text-2xl">{today}</h1>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">

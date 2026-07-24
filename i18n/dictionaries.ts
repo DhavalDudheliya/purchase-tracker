@@ -36,8 +36,7 @@ const en = {
     somethingWrong: "Something went wrong. Please try again.",
   },
   home: {
-    greeting: "Welcome back",
-    tagline: "Log today's purchases in a few taps.",
+    today: "Today",
     addPurchase: "Add Purchase",
     manageProducts: "Manage Products",
     thisMonth: "This month",
@@ -126,8 +125,7 @@ const gu: Dictionary = {
     somethingWrong: "Kaik problem thayu. Fari try karo.",
   },
   home: {
-    greeting: "Pacha aavya",
-    tagline: "Aaj ni purchase thoda taps ma add karo.",
+    today: "Aaje",
     addPurchase: "Purchase Add karo",
     manageProducts: "Products Manage karo",
     thisMonth: "Aa mahino",
